@@ -1,5 +1,6 @@
 import random
 import pygame
+import time
 
 # PyGame
 WIN_WIDTH = 600
@@ -17,17 +18,16 @@ YELLOW = (255, 255, 0)
 # Bird
 GRAVITY = 2
 GRAVITY_INCREASE_RATE = 1.05
-JUMPSIZE = GRAVITY * 10
+JUMPSIZE = GRAVITY * 8
 BIRD_SIZE = 30
-BIRD_COLOR = RED
+BIRD_COLOR = YELLOW
 
 # Pipes
-PIPE_WIDTH = 75
+PIPE_WIDTH = 65
 PIPE_COLOR = GREEN
-PIPE_MOVEMENT = 5
-PIPE_HOLE_SIZE = BIRD_SIZE * 4
-hole_count = 4
-PIPE_HEIGHT_LIST = [WIN_HEIGHT // hole_count * i for i in range(2, hole_count)]
+PIPE_MOVEMENT = 7
+PIPE_HOLE_SIZE = BIRD_SIZE * 3
+PIPE_HEIGHT_LIST = [200, 300, 400, 500, 600, 700]
 
 
 class Bird:
@@ -52,6 +52,7 @@ class Bird:
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
 
+
 class Pipe:
     def __init__(self, x, height):
         self.x = x
@@ -59,14 +60,14 @@ class Pipe:
         self.width = PIPE_WIDTH
         self.movement = PIPE_MOVEMENT
         self.color = PIPE_COLOR
-        self.hole = PIPE_HOLE_SIZE
+        self.hole_size = PIPE_HOLE_SIZE
         self.rect1 = pygame.Rect(self.x, WIN_HEIGHT - self.height, self.width, self.height)
-        self.rect2 = pygame.Rect(self.x, 0, self.width, WIN_HEIGHT - self.height - self.hole)
+        self.rect2 = pygame.Rect(self.x, 0, self.width, WIN_HEIGHT - self.height - self.hole_size)
 
     def update(self):
         self.x -= self.movement
         self.rect1 = pygame.Rect(self.x, WIN_HEIGHT - self.height, self.width, self.height)
-        self.rect2 = pygame.Rect(self.x, 0, self.width, WIN_HEIGHT - self.height - self.hole)
+        self.rect2 = pygame.Rect(self.x, 0, self.width, WIN_HEIGHT - self.height - self.hole_size)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect1)
@@ -75,9 +76,6 @@ class Pipe:
 
 class FlappyBird:
     def __init__(self):
-        self.bird = Bird()
-        self.pipes = Pipe(WIN_WIDTH, random.choice(PIPE_HEIGHT_LIST))
-
         self.winSize = (WIN_WIDTH, WIN_HEIGHT)
         self.screen = pygame.display.set_mode(self.winSize)
         pygame.display.init()
@@ -87,7 +85,7 @@ class FlappyBird:
         self.running = True
         self.BLACK = BLACK
 
-        self.score = 0
+        self.restart()
 
     def update(self):
         self.bird.update()
@@ -98,6 +96,15 @@ class FlappyBird:
 
         if self.pipes.x < -self.pipes.width:
             self.pipes = Pipe(WIN_WIDTH, random.choice(PIPE_HEIGHT_LIST))
+            self.score += 1
+            print(self.score)
+
+    def restart(self):
+        self.running = True
+        self.score = 0
+
+        self.bird = Bird()
+        self.pipes = Pipe(WIN_WIDTH, random.choice(PIPE_HEIGHT_LIST))
 
     def check_collision(self):
         if (self.bird.y + self.bird.size > WIN_HEIGHT
@@ -119,12 +126,16 @@ class FlappyBird:
             self.screen.fill(self.BLACK)
             self.update()
 
+            pygame.display.update()
+            self.clock.tick(self.fps)
+
             collision = self.check_collision()
             if collision:
-                self.running = False
-
-            pygame.display.flip()
-            self.clock.tick(self.fps)
+                self.restart()
+                pygame.draw.rect(self.screen, RED,
+                                 (WIN_WIDTH // 2 - 150, WIN_HEIGHT // 2 - 100, 300, 200))
+                pygame.display.update()
+                time.sleep(1.5)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
