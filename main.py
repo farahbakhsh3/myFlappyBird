@@ -2,10 +2,11 @@ import random
 import pygame
 import time
 
+
 # PyGame
 WIN_WIDTH = 600
 WIN_HEIGHT = 800
-FPS = 40
+FPS = 90
 
 # Colors
 BLACK = (0, 0, 0)
@@ -16,24 +17,24 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 # Bird
-GRAVITY = 2
+GRAVITY = 1
 GRAVITY_INCREASE_RATE = 1.05
-JUMPSIZE = GRAVITY * 8
+JUMPSIZE = GRAVITY + 5
 BIRD_SIZE = 30
 BIRD_COLOR = YELLOW
 
 # Pipes
-PIPE_WIDTH = 65
+PIPE_WIDTH = 75
 PIPE_COLOR = GREEN
-PIPE_MOVEMENT = 7
-PIPE_HOLE_SIZE = BIRD_SIZE * 3
-PIPE_HEIGHT_LIST = [200, 300, 400, 500, 600, 700]
+PIPE_MOVEMENT = 5
+PIPE_HOLE_SIZE = BIRD_SIZE * 4
+PIPE_HEIGHT_LIST = [300, 350, 450, 500]
 
 
 class Bird:
     def __init__(self):
         self.y = WIN_HEIGHT // 2
-        self.x = WIN_HEIGHT // 4
+        self.x = 75
         self.gravity = GRAVITY
         self.jumpSize = JUMPSIZE
         self.size = BIRD_SIZE
@@ -118,7 +119,7 @@ class FlappyBird:
     def run(self):
         while self.running:
             keys = pygame.key.get_pressed()
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
                 self.bird.jump()
             elif keys[pygame.K_ESCAPE]:
                 self.running = False
@@ -135,7 +136,7 @@ class FlappyBird:
                 pygame.draw.rect(self.screen, RED,
                                  (WIN_WIDTH // 2 - 150, WIN_HEIGHT // 2 - 100, 300, 200))
                 pygame.display.update()
-                time.sleep(1.5)
+                time.sleep(1)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
